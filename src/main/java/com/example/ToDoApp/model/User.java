@@ -1,39 +1,22 @@
 package com.example.ToDoApp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Table(name = "users")
+@Table(name = "user")
 @Entity
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private Long username;
-    private Long password;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(nullable = false)
+    private String password;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUsername() {
-        return username;
-    }
-
-    public void setUsername(Long username) {
-        this.username = username;
-    }
-
-    public Long getPassword() {
-        return password;
-    }
-
-    public void setPassword(Long password) {
-        this.password = password;
-    }
 }
