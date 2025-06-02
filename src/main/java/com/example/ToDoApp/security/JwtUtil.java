@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private String secret = "SecretKey123"; // Сменить на сложный в реальном проекте
+    private String secret = "q6LHlIxkS4jsnX3GEXiJv4J9+kQ9svI23eZ+B7OSziw="; // Сменить на сложный в реальном проекте
 
     public String generateToken(String username) {
         return Jwts.builder()

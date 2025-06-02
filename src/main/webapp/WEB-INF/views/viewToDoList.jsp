@@ -1,118 +1,84 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-         pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-
+<html>
 <head>
-    <meta charset="ISO-8859-1">
     <title>View ToDo Item List</title>
-
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script
-            src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script
-            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <style>
-        a{
-            color: white;
-        }
-        a:hover {
-            color: white;
-            text-decoration: none;
-        }
-    </style>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body>
 
 <div class="container">
+    <h1 class="p-3">ToDo Item List</h1>
 
-    <h1 class="p-3"> ToDo Item List</h1>
+    <table id="todoTable" class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Mark Completed</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Задачи будут подставлены сюда JS -->
+        </tbody>
+    </table>
 
-    <form:form>
+    <button type="button" class="btn btn-primary btn-block">
+        <a href="/addToDoItem" style="color: white; text-decoration: none;">Add New ToDo Item</a>
+    </button>
+</div>
 
-        <table class="table table-bordered">
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Mark Completed</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-
-            <c:forEach var="todo" items="${list}">
+<script>
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+        // Нет токена — перекидываем на логин
+        window.location.href = "/login";
+    } else {
+        fetch("/api/tasks", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    // Неавторизован — удаляем токен и кидаем на логин
+                    localStorage.removeItem("jwtToken");
+                    window.location.href = "/login";
+                }
+                return response.json();
+            })
+            .then(tasks => {
+                const tbody = document.querySelector("#todoTable tbody");
+                if (tasks.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='7'>Список задач пуст.</td></tr>";
+                    return;
+                }
+                tbody.innerHTML = tasks.map(todo => `
                 <tr>
                     <td>${todo.id}</td>
                     <td>${todo.title}</td>
                     <td>${todo.date}</td>
                     <td>${todo.status}</td>
-                    <td><button type="button" class="btn btn-success">
-                        <a href="/updateToDoStatus/${todo.id}">Mark Complete</a>
-                    </button></td>
-                    <td><button type="button" class="btn btn-primary">
-                        <a href="/editToDoItem/${todo.id}">Edit</a>
-                    </button></td>
-                    <td><button type="button" class="btn btn-danger">
-                        <a href="/deleteToDoItem/${todo.id}">Delete</a>
-                    </button></td>
+                    <td><button class="btn btn-success"><a href="/updateToDoStatus/${todo.id}" style="color:white;text-decoration:none;">Mark Complete</a></button></td>
+                    <td><button class="btn btn-primary"><a href="/editToDoItem/${todo.id}" style="color:white;text-decoration:none;">Edit</a></button></td>
+                    <td><button class="btn btn-danger"><a href="/deleteToDoItem/${todo.id}" style="color:white;text-decoration:none;">Delete</a></button></td>
                 </tr>
-
-            </c:forEach>
-
-        </table>
-
-    </form:form>
-
-    <button type="button" class="btn btn-primary btn-block">
-        <a href="/addToDoItem">Add New ToDo Item</a>
-    </button>
-
-</div>
-
-<script th:inline="javascript">
-    window.onload = function() {
-
-        var msg = "${message}";
-
-        if (msg == "Save Success") {
-            Command: toastr["success"]("Item added successfully!!")
-        } else if (msg == "Delete Success") {
-            Command: toastr["success"]("Item deleted successfully!!")
-        } else if (msg == "Delete Failure") {
-            Command: toastr["error"]("Some error occurred, couldn't delete item")
-        } else if (msg == "Edit Success") {
-            Command: toastr["success"]("Item updated successfully!!")
-        }
-
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        }
+            `).join('');
+            })
+            .catch(() => {
+                // При ошибке редиректим на логин
+                window.location.href = "/login";
+            });
     }
 </script>
 
 </body>
-
 </html>

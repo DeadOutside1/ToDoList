@@ -23,32 +23,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetailsService(IUserRepo userRepo) {
         this.userRepo = userRepo;
     }
-    public List<User> getAllUsers(){
-        return userRepo.findAll();
-    }
-
-    public Optional<User> getUserById(Long id){
-        return userRepo.findById(id);
-    }
-
-    public Optional<User> findByUsername(String username){
-        return userRepo.findByUsername(username);
-    }
-
-    public User createUser(User user){
-        return userRepo.save(user);
-    }
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        System.out.println("pidaras");
+
         return org.springframework.security.core.userdetails.User
                 .builder()
                 .username(user.getUsername())
-                .password(user.getPassword()) // Здесь пароль должен быть уже закодирован
+                .password(user.getPassword())
                 .build();
     }
+
 }
