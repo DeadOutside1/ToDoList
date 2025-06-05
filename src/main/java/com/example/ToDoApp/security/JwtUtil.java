@@ -3,6 +3,7 @@ package com.example.ToDoApp.security;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    @Value("${jwt.secret}")
     private String secret = "q6LHlIxkS4jsnX3GEXiJv4J9+kQ9svI23eZ+B7OSziw="; // Сменить на сложный в реальном проекте
 
     public String generateToken(String username) {
