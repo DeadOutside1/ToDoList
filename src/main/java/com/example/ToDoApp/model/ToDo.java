@@ -1,58 +1,39 @@
 package com.example.ToDoApp.model;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="todo")
+@Table(name = "todo")
+@Getter
+@Setter
 public class ToDo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
     private String title;
+
     @Column
-    private Date date;
+    private LocalDate date;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
     @Column
     private String status;
 
-    public ToDo(){
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

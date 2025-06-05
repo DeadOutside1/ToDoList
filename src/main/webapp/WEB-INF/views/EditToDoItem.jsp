@@ -1,14 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-         pageEncoding="ISO-8859-1"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%--@elvariable id="todo" type="com.example.ToDoApp.model.ToDo"--%>
+
 
 
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="ISO-8859-1">
+    <meta charset="UTF-8">
     <title>Edit Item</title>
 
     <link rel="stylesheet"
@@ -55,7 +55,7 @@
             <label class="col-md-3 col-form-label" for="date">Date</label>
             <div class="col-md-6">
                 <form:input type="date" path="date" id="date"
-                            class="form-control" required="true" />
+                            class="form-control" readonly="true" />
             </div>
         </div>
 

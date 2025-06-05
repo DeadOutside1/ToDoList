@@ -28,14 +28,13 @@
 
     <h1 class="p-3"> Add a ToDo Item </h1>
 
-    <form:form action="/saveToDoItem" method="post" modelAttribute="todo">
+    <form:form method="POST" modelAttribute="todo" action="/saveToDoItem">
 
         <div class="row">
             <div class="form-group col-md-12">
                 <label class="col-md-3" for="title">Title</label>
                 <div class="col-md-6">
-                    <form:input type="text" path="title" id="title"
-                                class="form-control input-sm" required="required" />
+                    <form:input path="title" id="title" cssClass="form-control input-sm" required="true"/>
                 </div>
             </div>
         </div>
@@ -45,7 +44,7 @@
                 <label class="col-md-3" for="date">Date</label>
                 <div class="col-md-6">
                     <form:input type="date" path="date" id="date"
-                                class="form-control input-sm" required="required" />
+                                class="form-control" readonly="true" />
                 </div>
             </div>
         </div>
@@ -54,19 +53,20 @@
             <div class="form-group col-md-12">
                 <label class="col-md-3" for="status">Status</label>
                 <div class="col-md-6">
-                    <form:input type="text" path="status" id="status"
-                                class="form-control input-sm" value="Incomplete" />
+                    <form:input path="status" id="status" cssClass="form-control input-sm" value="Incomplete"/>
                 </div>
             </div>
         </div>
 
         <div class="row p-2">
             <div class="col-md-2">
-                <button type="submit" value="Register" class="btn btn-success">Save</button>
+                <button type="submit" class="btn btn-success">Save</button>
             </div>
         </div>
 
     </form:form>
+
+
 
 </div>
 

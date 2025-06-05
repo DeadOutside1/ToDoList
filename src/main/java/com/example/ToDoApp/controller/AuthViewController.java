@@ -4,6 +4,7 @@ import com.example.ToDoApp.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AuthViewController {
@@ -15,7 +16,15 @@ public class AuthViewController {
     }
 
     @GetMapping("/login")
-    public String showLoginPage() {
+    public String loginPage(@RequestParam(required = false) String error,
+                            @RequestParam(required = false) String logout,
+                            Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", "Неверный логин или пароль");
+        }
+        if (logout != null) {
+            model.addAttribute("logoutMessage", "Вы успешно вышли");
+        }
         return "login"; // login.jsp
     }
 }

@@ -6,6 +6,7 @@ import com.example.ToDoApp.model.ToDo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +35,11 @@ public class ToDoService {
     }
 
     public boolean saveOrUpdateToDoItem(ToDo todo) {
+
+        todo.setDate(LocalDate.now());
         ToDo updatedObj = repo.save(todo);
         if(getToDoItemById(updatedObj.getId()) != null){
+
             return true;
         }
 
@@ -50,6 +54,9 @@ public class ToDoService {
         }
 
         return false;
+    }
+    public List<ToDo> getToDosByUserId(Long userId) {
+        return repo.findByUser_Id(userId);
     }
 
 }
