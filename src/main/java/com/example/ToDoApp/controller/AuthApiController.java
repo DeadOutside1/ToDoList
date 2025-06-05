@@ -7,6 +7,7 @@ import com.example.ToDoApp.service.CustomUserDetailsService;
 import com.example.ToDoApp.service.ToDoService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,6 +39,7 @@ public class AuthApiController {
 
     @Autowired
     private ToDoService toDoService;
+
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest, HttpServletRequest request) {
         try {
@@ -48,10 +51,11 @@ public class AuthApiController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+        final String accessToken = jwtUtil.generateToken(userDetails.getUsername());
+        final String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
         request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        return ResponseEntity.ok(new AuthResponse(accessToken,refreshToken));
     }
 
     @PostMapping("/register")
@@ -74,4 +78,20 @@ public class AuthApiController {
         return toDoService.getToDosByUserId(user.getId());
     }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String refreshToken = authHeader.substring(7);
+
+            if (jwtUtil.validateToken(refreshToken)) {
+                String username = jwtUtil.extractUsername(refreshToken);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                String newAccessToken = jwtUtil.generateToken(userDetails.getUsername());
+
+                return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+    }
 }

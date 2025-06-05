@@ -16,15 +16,22 @@
     <div class="d-flex justify-content-between">
         <div class="text-primary font-weight-bold">
             Hello, ${username}
+            <button id="refreshTokenBtn" class="btn btn-sm btn-outline-secondary ml-2">Refresh Token</button>
+        </div>
+        <div class="mt-2">
+            <strong>Access Token:</strong>
+            <div id="accessTokenDisplay" style="word-break: break-all;"></div>
+            <strong>Refresh Token:</strong>
+            <div id="refreshTokenDisplay" style="word-break: break-all;"></div>
         </div>
         <form action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit" class="btn btn-outline-danger">Logout</button>
         </form>
     </div>
 </div>
+
 <div class="container mt-5">
     <h1 class="mb-4">ToDo Item List</h1>
-
     <table class="table table-bordered table-striped">
         <thead class="thead-dark">
         <tr>
@@ -65,14 +72,55 @@
                 </td>
             </tr>
         </c:forEach>
-
         </tbody>
     </table>
-
     <div class="text-right">
         <a href="/addToDoItem" class="btn btn-outline-primary">Add New ToDo Item</a>
     </div>
 </div>
 
+<!-- Скрипт отображения и обновления токенов -->
+<script>
+    window.onload = function () {
+        const accessTokenDisplay = document.getElementById("accessTokenDisplay");
+        const refreshTokenDisplay = document.getElementById("refreshTokenDisplay");
+        const refreshButton = document.getElementById("refreshTokenBtn");
+
+        const accessToken = localStorage.getItem("accessToken");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        // Отобразим текущие токены
+        accessTokenDisplay.textContent = accessToken || "—";
+        refreshTokenDisplay.textContent = refreshToken || "—";
+
+        // Обработка кнопки обновления токена
+        refreshButton.addEventListener("click", async () => {
+            if (!refreshToken) {
+                alert("Refresh token не найден.");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/auth/refresh-token", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + refreshToken
+                    }
+                });
+
+                if (res.ok) {
+                    const json = await res.json();
+                    localStorage.setItem("accessToken", json.accessToken);
+                    accessTokenDisplay.textContent = json.accessToken;
+                    alert("Access token обновлён!");
+                } else {
+                    alert("Не удалось обновить токен. Возможно, он истёк.");
+                }
+            } catch (err) {
+                alert("Ошибка при обновлении токена.");
+            }
+        });
+    };
+</script>
 </body>
 </html>

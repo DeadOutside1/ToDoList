@@ -1,10 +1,9 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Вход в ToDo</title>
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <title>Вход</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
@@ -14,99 +13,85 @@
             min-height: 100vh;
             margin: 0;
         }
-        .login-card {
+        .login-container {
             background: white;
+            padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
         }
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .login-header h3 {
-            color: #343a40;
-            font-weight: 600;
-        }
-        .form-control {
-            border-radius: 5px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
+        .form-group {
+            margin-bottom: 1.5rem;
         }
         .btn-login {
-            background-color: #4e73df;
-            border: none;
-            border-radius: 5px;
-            padding: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-login:hover {
-            background-color: #3a5ec0;
-            transform: translateY(-1px);
-        }
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #6c757d;
-        }
-        .register-link a {
-            color: #4e73df;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
+            width: 100%;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-<div class="login-card">
-    <div class="login-header">
-        <h3>Добро пожаловать в ToDo</h3>
-        <p class="text-muted">Пожалуйста, войдите в свой аккаунт</p>
-    </div>
-
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger alert-dismissible fade show">
-                ${errorMessage}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </c:if>
-    <c:if test="${not empty logoutMessage}">
-        <div class="alert alert-success alert-dismissible fade show">
-                ${logoutMessage}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </c:if>
-
-    <form method="post" action="<c:url value='/login'/>">
+<div class="login-container">
+    <h2 class="text-center mb-4">Вход</h2>
+    <form id="loginForm">
         <div class="form-group">
-            <label for="username">Логин</label>
-            <input type="text" id="username" name="username" class="form-control" placeholder="Введите ваш логин" required autofocus>
+            <label for="username" class="form-label">Имя пользователя:</label>
+            <input type="text" class="form-control" id="username" name="username" required>
         </div>
         <div class="form-group">
-            <label for="password">Пароль</label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Введите ваш пароль" required>
+            <label for="password" class="form-label">Пароль:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
         </div>
-
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-
-        <button type="submit" class="btn btn-login btn-block">Войти</button>
-
-        <div class="register-link">
-            Нет аккаунта? <a href="<c:url value='/register'/>">Зарегистрироваться</a>
-        </div>
+        <button type="submit" class="btn btn-primary btn-login">Войти</button>
     </form>
+    <div id="response" class="mt-3 text-center"></div>
+    <div class="text-center mt-3">
+        <a href="/register" class="text-decoration-none">Нет аккаунта? Зарегистрироваться</a>
+    </div>
 </div>
 
-<script src="/js/jquery-3.5.1.slim.min.js"></script>
-<script src="/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = new FormData(this);
+        const data = {
+            username: form.get('username'),
+            password: form.get('password')
+        };
+
+        const responseElement = document.getElementById('response');
+        responseElement.textContent = "";
+        responseElement.className = "mt-3 text-center";
+
+        try {
+            const res = await fetch('/api/auth/authenticate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                const tokens = await res.json(); // Ожидаем { accessToken, refreshToken }
+
+                localStorage.setItem('accessToken', tokens.accessToken);
+                localStorage.setItem('refreshToken', tokens.refreshToken);
+
+                responseElement.textContent = "Успешный вход! Перенаправление...";
+                responseElement.classList.add('text-success');
+
+                setTimeout(() => {
+                    window.location.href = '/viewToDoList'; // поменяй путь, если у тебя другой
+                }, 1000);
+            } else {
+                const error = await res.text();
+                responseElement.textContent = error || "Ошибка входа";
+                responseElement.classList.add('text-danger');
+            }
+        } catch (error) {
+            responseElement.textContent = "Ошибка соединения с сервером";
+            responseElement.classList.add('text-danger');
+        }
+    });
+</script>
 </body>
 </html>

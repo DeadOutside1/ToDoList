@@ -54,6 +54,7 @@
 <script>
     document.getElementById('registerForm').addEventListener('submit', async function (e) {
         e.preventDefault();
+
         const form = new FormData(this);
         const data = {
             username: form.get('username'),
@@ -65,30 +66,53 @@
         responseElement.className = "mt-3 text-center";
 
         try {
-            const res = await fetch('/api/auth/register', {
+            // Регистрация
+            const registerRes = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
 
-
-            if (res.ok) {
-                responseElement.textContent = "Регистрация прошла успешно!";
-                responseElement.classList.add('text-success');
-                this.reset();
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 2000);
-            } else {
-                const error = await res.json();
-                responseElement.textContent = error.message || "Ошибка регистрации";
+            if (!registerRes.ok) {
+                const error = await registerRes.text();
+                responseElement.textContent = error || "Ошибка регистрации";
                 responseElement.classList.add('text-danger');
+                return;
             }
+
+            // Если регистрация прошла — авторизация
+            const loginRes = await fetch('/api/auth/authenticate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (!loginRes.ok) {
+                responseElement.textContent = "Регистрация успешна, но вход не удался.";
+                responseElement.classList.add('text-warning');
+                return;
+            }
+
+            const tokens = await loginRes.json();
+
+            // Сохраняем токены
+            localStorage.setItem("accessToken", tokens.accessToken);
+            localStorage.setItem("refreshToken", tokens.refreshToken);
+
+            responseElement.textContent = "Регистрация и вход успешны!";
+            responseElement.classList.add('text-success');
+
+            // Перенаправление на список задач
+            setTimeout(() => {
+                window.location.href = "/viewToDoList";
+            }, 1000);
+
         } catch (error) {
             responseElement.textContent = "Ошибка соединения с сервером";
             responseElement.classList.add('text-danger');
         }
     });
 </script>
+
 </body>
 </html>
