@@ -53,25 +53,25 @@ Content-Type: application/json
   "password": "admin"
 }
 
-♻️ Обновление токена
-POST /api/auth/refresh-token
-Authorization: Bearer {refreshToken}
+##♻️ Обновление токена
+- POST /api/auth/refresh-token
+ Authorization: Bearer {refreshToken}
 
-📋 Получить задачи
-GET /api/tasks
+##📋 Получить задачи
+- GET /api/tasks
 Authorization: Bearer {accessToken}
 
-🗂️ Структура проекта
-src
-├── controller
-├── model
-├── repo
-├── security
-├── service
-└── templates (JSP)
+## 🗂️ Структура проекта
+-src
+- ├── controller
+ ├── model
+ ├── repo
+ ├── security
+ ├── service
+ └── templates (JSP)
 
-📌 Примечание
-✅ Можно переключить на PostgreSQL, просто измени application.properties
+## 📌 Примечание
+- ✅ Можно переключить на PostgreSQL, просто измени application.properties
 
-🔐 JWT access token хранится в localStorage, можно подключить refresh token обновление
+- 🔐 JWT access token хранится в localStorage, можно подключить refresh token обновление
 
