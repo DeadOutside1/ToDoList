@@ -41,11 +41,11 @@ mvn clean install
 mvn spring-boot:run
 
 Приложение будет доступно по адресу:
-📍 http://localhost:8091
+📍 http://localhost:8091/login
 
 ```
-🧑‍💻 REST API
-POST /api/auth/authenticate
+## 🧑‍💻 REST API
+- POST /api/auth/authenticate
 Content-Type: application/json
 
 {
@@ -53,11 +53,11 @@ Content-Type: application/json
   "password": "admin"
 }
 
-##♻️ Обновление токена
+## ♻️ Обновление токена
 - POST /api/auth/refresh-token
  Authorization: Bearer {refreshToken}
 
-##📋 Получить задачи
+## 📋 Получить задачи
 - GET /api/tasks
 Authorization: Bearer {accessToken}
 
